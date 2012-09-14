@@ -1,9 +1,14 @@
 {
-  "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
   "name": "base128",
   "version": "0.0.1",
+  "description": "Encode, decode binary to/from UTF-8 string using Base128.",
+  "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
   "devDependencies": {
     "mocha": "*",
     "should": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/niw/node-base128.git"
   }
 }
