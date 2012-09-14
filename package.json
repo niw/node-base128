@@ -1,0 +1,9 @@
+{
+  "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
+  "name": "base128",
+  "version": "0.0.1",
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  }
+}
