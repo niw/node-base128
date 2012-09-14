@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Encode, decode binary to/from UTF-8 string using Base128.",
   "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
-  "main": ".lib/base128",
+  "main": "./lib/base128",
   "devDependencies": {
     "mocha": "*",
     "should": "*"
