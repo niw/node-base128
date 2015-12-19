@@ -3,13 +3,23 @@
   "version": "0.1.0",
   "description": "Encode, decode binary to/from UTF-8 string using Base128.",
   "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
-  "main": "./lib/base128",
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/niw/node-base128.git"
-  }
+  },
+  "main": "./lib/base128",
+  "scripts": {
+    "configure": "node-gyp configure",
+    "build": "node-gyp build",
+    "clean": "node-gyp clean",
+    "distclean": "rm -rf build node_modules",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "nan": "^2.1.0",
+    "node-gyp": "*",
+    "mocha": "*",
+    "should": "*"
+  },
+  "gypfile": true
 }

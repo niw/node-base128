@@ -1,32 +1,27 @@
 #include <node.h>
-#include <v8.h>
-#include <node_buffer.h>
+#include <nan.h>
 
-using namespace v8;
-using namespace node;
+#define THROW_BAD_ARGS Nan::ThrowTypeError("Bad argument")
+#define THROW_NOT_ENOUGH_BUFFER Nan::ThrowTypeError("Not enough buffer")
 
-#define TYPE_ERROR(msg) ThrowException(Exception::TypeError(String::New(msg)));
-#define THROW_BAD_ARGS          TYPE_ERROR("Bad argument")
-#define THROW_NOT_ENOUGH_BUFFER TYPE_ERROR("Not enough buffer")
-
-static Handle<Value> Decode(const Arguments& args) {
-  HandleScope scope;
-
-  if(args.Length() < 2 ||
-     !Buffer::HasInstance(args[0]) ||
-     !Buffer::HasInstance(args[1])) {
-    return THROW_BAD_ARGS;
+NAN_METHOD(Decode) {
+  if(info.Length() < 2 ||
+     !node::Buffer::HasInstance(info[0]) ||
+     !node::Buffer::HasInstance(info[1])) {
+    THROW_BAD_ARGS;
+    return;
   }
-  Local<Object> buffer_obj = args[0]->ToObject();
-  Local<Object> result_obj = args[1]->ToObject();
+  v8::Local<v8::Object> buffer_obj = info[0]->ToObject();
+  v8::Local<v8::Object> result_obj = info[1]->ToObject();
 
-  char *data = Buffer::Data(buffer_obj);
-  char *res  = Buffer::Data(result_obj);
-  size_t data_size = Buffer::Length(buffer_obj);
-  size_t res_size  = Buffer::Length(result_obj);
+  char * const data = node::Buffer::Data(buffer_obj);
+  char * const res = node::Buffer::Data(result_obj);
+  const size_t data_size = node::Buffer::Length(buffer_obj);
+  const size_t res_size = node::Buffer::Length(result_obj);
 
   if(res_size < data_size * 7 / 8) {
-    return THROW_NOT_ENOUGH_BUFFER;
+    THROW_NOT_ENOUGH_BUFFER;
+    return;
   }
 
   int carry_size = 0;
@@ -36,7 +31,8 @@ static Handle<Value> Decode(const Arguments& args) {
   for(i = 0, j = 0; i < data_size && j < res_size; ++i) {
     unsigned char c = data[i];
     if(c & 0x80) {
-      return THROW_BAD_ARGS;
+      THROW_BAD_ARGS;
+      return;
     }
     c = c & 0x7F;
 
@@ -46,8 +42,8 @@ static Handle<Value> Decode(const Arguments& args) {
       continue;
     }
 
-    int mask_size = 8 - carry_size;
-    unsigned char mask = (1 << mask_size) - 1;
+    const int mask_size = 8 - carry_size;
+    const unsigned char mask = (1 << mask_size) - 1;
 
     res[j++] = carry_bits | ((c & mask) << carry_size);
 
@@ -55,31 +51,32 @@ static Handle<Value> Decode(const Arguments& args) {
     --carry_size;
   }
   if(i < data_size || carry_bits) {
-    return THROW_BAD_ARGS;
+    THROW_BAD_ARGS;
+    return;
   }
 
-  return scope.Close(Integer::New(j));
+  info.GetReturnValue().Set(Nan::New((uint32_t)j));
 }
 
-static Handle<Value> Encode(const Arguments& args) {
-  HandleScope scope;
-
-  if(args.Length() < 2 ||
-     !Buffer::HasInstance(args[0]) ||
-     !Buffer::HasInstance(args[1])) {
-    return THROW_BAD_ARGS;
+NAN_METHOD(Encode) {
+  if(info.Length() < 2 ||
+     !node::Buffer::HasInstance(info[0]) ||
+     !node::Buffer::HasInstance(info[1])) {
+    THROW_BAD_ARGS;
+    return;
   }
-  Local<Object> buffer_obj = args[0]->ToObject();
-  Local<Object> result_obj = args[1]->ToObject();
+  v8::Local<v8::Object> buffer_obj = info[0]->ToObject();
+  v8::Local<v8::Object> result_obj = info[1]->ToObject();
 
-  char *data = Buffer::Data(buffer_obj);
-  char *res  = Buffer::Data(result_obj);
-  size_t data_size = Buffer::Length(buffer_obj);
-  size_t res_size  = Buffer::Length(result_obj);
+  char * const data = node::Buffer::Data(buffer_obj);
+  char * const res = node::Buffer::Data(result_obj);
+  const size_t data_size = node::Buffer::Length(buffer_obj);
+  const size_t res_size = node::Buffer::Length(result_obj);
 
-  size_t bits_size = data_size * 8;
+  const size_t bits_size = data_size * 8;
   if(res_size < bits_size / 7 + (bits_size % 7 ? 1 : 0)) {
-    return THROW_NOT_ENOUGH_BUFFER;
+    THROW_NOT_ENOUGH_BUFFER;
+    return;
   }
 
   int carry_size = 0;
@@ -94,10 +91,10 @@ static Handle<Value> Encode(const Arguments& args) {
       continue;
     }
 
-    unsigned char c = data[i++];
+    const unsigned char c = data[i++];
 
-    int mask_size = 7 - carry_size;
-    unsigned char mask = (1 << mask_size) - 1;
+    const int mask_size = 7 - carry_size;
+    const unsigned char mask = (1 << mask_size) - 1;
 
     res[j] = ((c & mask) << carry_size) | carry_bits;
 
@@ -108,12 +105,12 @@ static Handle<Value> Encode(const Arguments& args) {
     res[j++] = carry_bits;
   }
 
-  return scope.Close(Integer::New(j));
+  info.GetReturnValue().Set(Nan::New((uint32_t)j));
 }
 
-void init(Handle<Object> target) {
-  NODE_SET_METHOD(target, "encode", Encode);
-  NODE_SET_METHOD(target, "decode", Decode);
+NAN_MODULE_INIT(init) {
+  Nan::Export(target, "decode", Decode);
+  Nan::Export(target, "encode", Encode);
 }
 
 NODE_MODULE(base128, init);
