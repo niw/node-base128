@@ -1,6 +1,6 @@
 {
   "name": "base128",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Encode, decode binary to/from UTF-8 string using Base128.",
   "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
   "repository": {
