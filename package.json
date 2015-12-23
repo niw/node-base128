@@ -1,6 +1,6 @@
 {
   "name": "base128",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Encode, decode binary to/from UTF-8 string using Base128.",
   "author": "Yoshimasa Niwa <niw@niw.at> (http://niw.at/)",
   "repository": {
@@ -16,10 +16,11 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "nan": "^2.1.0",
-    "node-gyp": "*",
     "mocha": "*",
     "should": "*"
+  },
+  "dependencies": {
+    "nan": "^2.1.0"
   },
   "gypfile": true
 }
